@@ -1,16 +1,15 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
-
+//Java 11
 
 class Fan {
-    private String fan;
+    private String fan = "";
 
     public String getFan() {
         return fan;
     }
 
-    public void setFan(String fan) {
-        this.fan = fan;
-    }
 
     protected int heightFan;
     protected char[][] fanChar = null;
@@ -29,45 +28,32 @@ class Fan {
         System.out.printf("\n");
         for (int axisY = 0; axisY < heightFan * 2; axisY++) {
             for (int axisX = 0; axisX < heightFan * 2; axisX++) {
-                System.out.printf(String.valueOf(fanChar[axisX][axisY]));
+                fan = fan + fanChar[axisX][axisY];
             }
-            System.out.printf("\n");
+            fan = fan + "\n";
         }
     }
 }
 
 abstract class QuarterFanBuild extends Fan {
 
-    abstract void Build(int X, int Y);
-
-//    protected void BuildFanBlur() {
-//        System.out.printf("\n");
-//        for (int axisY = 0; axisY < heightFan * 2; axisY++) {
-//            for (int axisX = 0; axisX < heightFan * 2; axisX++) {
-//                this.fanChar[axisX][axisY] = 'X';  // BLUR
-//            }
-//            System.out.printf("\n");
-//        }
-//    }
-
-    public void buildQuarterFan() {
-        for (int axisX = 0; axisX < getHeightFan(); axisX++) {
-            for (int axisY = 0; axisY < getHeightFan(); axisY++) {
-                Build(axisX, axisY);
-            }
-        }
-    }
+    abstract void Build();
 }
 
 class LeftQuarterFanBuild extends QuarterFanBuild {
 
 
     @Override
-    public void Build(int axisX, int axisY) {
-        if (axisX <= axisY) {
-            this.fanChar[axisX][axisY] = '*';
-        } else {
-            this.fanChar[axisX][axisY] = '.';
+    public void Build() {
+        for (int axisX = 0; axisX < getHeightFan(); axisX++) {
+            for (int axisY = 0; axisY < getHeightFan(); axisY++) {
+                if (axisX <= axisY) {
+                    this.fanChar[axisX][axisY] = '*';
+                } else {
+                    this.fanChar[axisX][axisY] = '.';
+                }
+            }
+
         }
     }
 }
@@ -75,11 +61,16 @@ class LeftQuarterFanBuild extends QuarterFanBuild {
 class RightQuarterFanBuild extends QuarterFanBuild {
 
     @Override
-    public void Build(int axisX, int axisY) {
-        if (axisX >= axisY) {
-            this.fanChar[axisX][axisY] = '*';
-        } else {
-            this.fanChar[axisX][axisY] = '.';
+    public void Build() {
+        for (int axisX = 0; axisX < getHeightFan(); axisX++) {
+            for (int axisY = 0; axisY < getHeightFan(); axisY++) {
+                if (axisX >= axisY) {
+                    this.fanChar[axisX][axisY] = '*';
+                } else {
+                    this.fanChar[axisX][axisY] = '.';
+                }
+            }
+
         }
     }
 }
@@ -106,8 +97,9 @@ class HalfRotateBuilderFan extends RotateBuildFan {
 
     void Rotate(Fan a) {
         int axiosXhelper = a.heightFan;
+        int axisYhelper;
         for (int axisX = a.heightFan - 1; 0 <= axisX; axisX--) {
-            int axisYhelper = 0;
+            axisYhelper = 0;
             for (int axisY = a.heightFan * 2 - 1; 0 <= axisY; axisY--) {
                 a.fanChar[axiosXhelper][axisYhelper] = a.fanChar[axisX][axisY];
                 axisYhelper++;
@@ -121,38 +113,49 @@ class HalfRotateBuilderFan extends RotateBuildFan {
 public class FANGEN {
     public static void main(String[] args) {
 
+        List<Integer> fans = new ArrayList<>();
+        String s1;
         int heigh = 0;
-        QuarterFanBuild q = null;
-        try (Scanner s = new Scanner(System.in)) {
-            System.out.println("Enter number height fan");
-            heigh = Integer.parseInt(s.nextLine());
-        } catch (Exception ex) {
-            System.out.println("Wrong enter");
-            System.exit(0);
+        QuarterFanBuild fanQuarte = null;
+
+        do {
+            Scanner s = new Scanner(System.in);
+            s1 = (s.nextLine());
+            try {
+                heigh = Integer.parseInt(s1);
+                if (Math.abs(heigh) <= 200) {
+                    fans.add(heigh);
+                }
+            } catch (Exception ex) {
+                heigh = 1;
+            }
+        } while (heigh != 0);
+
+
+        for (Integer f : fans) {
+            heigh = f;
+
+            if (heigh == 0) {
+                System.exit(0);
+            } else if (heigh > 0) {
+                fanQuarte = new LeftQuarterFanBuild();
+            } else if (heigh < 0) {
+                fanQuarte = new RightQuarterFanBuild();
+            }
+            fanQuarte.setHeightFan(heigh);
+            // fanQuarte.BackgroundBlurBuildFan();
+
+            fanQuarte.Build();
+
+            RotateBuildFan rotateBuilderFan = new QuarterRotateBuildFan();
+            rotateBuilderFan.Rotate(fanQuarte);
+            rotateBuilderFan = new HalfRotateBuilderFan();
+            rotateBuilderFan.Rotate(fanQuarte);
+
+            fanQuarte.PrintFan();
+            System.out.printf(fanQuarte.getFan());
+
         }
-
-
-        if (heigh == 0) {
-            System.exit(0);
-        } else if (heigh < 0) {
-            q = new LeftQuarterFanBuild();
-        } else if (heigh > 0) {
-            q = new RightQuarterFanBuild();
-        }
-        q.setHeightFan(heigh);
-       // q.BuildFanBlur();
-
-        q.buildQuarterFan();
-
-        RotateBuildFan a = new QuarterRotateBuildFan();
-        a.Rotate(q);
-        a = new HalfRotateBuilderFan();
-        a.Rotate(q);
-
-        q.PrintFan();
-
-
-        //  System.out.println(q.getFan());
         System.exit(0);
     }
 }
