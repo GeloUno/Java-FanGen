@@ -37,9 +37,6 @@ class Fan {
 
 abstract class QuarterFanBuild extends Fan {
 
-//    protected int axisX = 0;
-//    protected int axisY = 0;
-
     abstract boolean Build(int axisX, int axisY);
 
 
@@ -76,9 +73,7 @@ class RightQuarterFanBuild extends QuarterFanBuild {
         }
         return false;
     }
-
 }
-
 
 abstract class RotateBuildFan extends Fan {
 
